@@ -27,19 +27,16 @@ def transpose(util):
             # flip id1 and id2
             transposed[id2][id1] = util[id1][id2]
     return transposed
+    
 def cosine_sim(util, id1, id2,mean,b_i,b_u, th=2):
     num = 0
-        
-    # get items util[id1] and util[id2] share in common
+    
     shared = set(util[id1].keys()).intersection(util[id2].keys())
 
-    # optimization to not compute similarity between items
-    # that don't meet threshold
     if len(shared) < th:
         return (0.0, len(shared))
     firstmag = 0 
     secondmag = 0
-    # calculate dot product and magnitudes of shared items
     for item in shared:
 	x=util[id1][item]-mean-b_i[id1]-b_u[item]
 	y=util[id2][item]-mean-b_i[id2]-b_u[item]
@@ -47,27 +44,20 @@ def cosine_sim(util, id1, id2,mean,b_i,b_u, th=2):
         firstmag += x**2
         secondmag += y**2
 
-    # prevent denom == 0
     firstmag = 1 if firstmag == 0 else firstmag
     secondmag = 1 if secondmag == 0 else secondmag
-    # calculate magnitude of shared items in util[id2]
     denom = math.sqrt(firstmag) * math.sqrt(secondmag)
 
     return (num*len(shared)/(denom*(80+len(shared))), len(shared))
 
-def cosine_sim1(util, id1, id2,mean,b_i,b_u, th=1):
+def pearson(util, id1, id2,mean,b_i,b_u, th=1):
     num = 0
         
-    # get items util[id1] and util[id2] share in common
     shared = set(util[id1].keys()).intersection(util[id2].keys())
-
-    # optimization to not compute similarity between items
-    # that don't meet threshold
     if len(shared) < th:
         return (0.0, len(shared))
     firstmag = 0 
     secondmag = 0
-    # calculate dot product and magnitudes of shared items
     for item in shared:
         num += (util[id1][item]-mean-b_i[id1]-b_u[item] )* (util[id2][item]-mean-b_i[id2]-b_u[item])
     for item in util[id1]:
@@ -75,10 +65,8 @@ def cosine_sim1(util, id1, id2,mean,b_i,b_u, th=1):
     for item in util[id2]:
         secondmag += (util[id2][item]-mean-b_i[id2]-b_u[item])**2
 
-    # prevent denom == 0
     firstmag = 1 if firstmag == 0 else firstmag
     secondmag = 1 if secondmag == 0 else secondmag
-    # calculate magnitude of shared items in util[id2]
     denom = math.sqrt(firstmag) * math.sqrt(secondmag)
 
     return (num*len(shared)/(denom*(len(shared)+20)), len(shared))
@@ -92,7 +80,6 @@ def computesims(util,s,b_i,b_u):
             sims[id1][id2] = cosine_sim(util, id1, id2,s,b_i,b_u)
     return sims
 def normalize(util):
-    # save average of each user
     avgs = {}
     for id1 in util:
         avg = 0.0
