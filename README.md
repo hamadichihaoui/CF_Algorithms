@@ -1,1 +1,1 @@
-# CF_Algorithms
+The implementation of the collaborative filtering algorithms
